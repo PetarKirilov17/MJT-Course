@@ -11,6 +11,7 @@ public class Main {
 
         pf1.buyStock(Constants.MICROSOFT_TICKER, 3);
         pf1.buyStock(Constants.AMAZON_TICKER, 2);
+        pf1.buyStock(Constants.GOOGLE_TICKER, 1);
         System.out.println(pf1.getOwner() +  " has " + pf1.getNetWorth() + " net worth .\n Left budget :" + pf1.getRemainingBudget());
         for (var p:pf1.getAllPurchases()){
             System.out.println(p.getStockTicker() + ":" + p.getTotalPurchasePrice());
