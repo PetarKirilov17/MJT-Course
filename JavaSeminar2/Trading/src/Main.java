@@ -1,5 +1,6 @@
-package bg.sofia.uni.fmi.mjt.trading;
-
+import bg.sofia.uni.fmi.mjt.trading.Constants;
+import bg.sofia.uni.fmi.mjt.trading.Portfolio;
+import bg.sofia.uni.fmi.mjt.trading.PortfolioAPI;
 import bg.sofia.uni.fmi.mjt.trading.price.PriceChart;
 import bg.sofia.uni.fmi.mjt.trading.price.PriceChartAPI;
 
