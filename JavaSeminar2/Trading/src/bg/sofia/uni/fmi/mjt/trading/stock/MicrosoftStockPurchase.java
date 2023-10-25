@@ -5,18 +5,12 @@ import java.time.LocalDateTime;
 
 public class MicrosoftStockPurchase extends BaseStockPurchase{
 
-    public MicrosoftStockPurchase(String ticker, int quantity, LocalDateTime purchaseTimestamp, double purchasePricePerUnit){
-        setTicker(ticker);
-        super.quantity = quantity;
-        super.purchaseTimestamp = purchaseTimestamp;
-        super.purchasePricePerUnit = purchasePricePerUnit;
+    public MicrosoftStockPurchase(int quantity, LocalDateTime purchaseTimestamp, double purchasePricePerUnit){
+        super(quantity, purchaseTimestamp, purchasePricePerUnit);
     }
-    private void setTicker(String ticker){
-        if(ticker.equals(Constants.MICROSOFT_TICKER)){
-            this.ticker = ticker;
-        }
-        else {
-            this.ticker = "";
-        }
+
+    @Override
+    public String getStockTicker() {
+        return Constants.MICROSOFT_TICKER;
     }
 }

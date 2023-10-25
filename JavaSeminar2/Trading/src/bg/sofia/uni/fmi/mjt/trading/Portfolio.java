@@ -11,13 +11,11 @@ import bg.sofia.uni.fmi.mjt.trading.Constants;
 import java.time.LocalDateTime;
 
 public class Portfolio implements PortfolioAPI{
-
     private String owner;
     private PriceChartAPI priceChart;
-    StockPurchase[] stockPurchases;
-    double budget;
-    int maxSize;
-
+    private StockPurchase[] stockPurchases;
+    private double budget;
+    private int maxSize;
     private int currentIndex;
 
     public Portfolio(String owner, PriceChartAPI priceChart, double budget, int maxSize){
@@ -35,12 +33,9 @@ public class Portfolio implements PortfolioAPI{
         this.budget = budget;
         this.maxSize = maxSize;
         this.stockPurchases = new StockPurchase[maxSize];
-        for(int i = 0; i < stockPurchases.length; i++){
-            this.stockPurchases[i] = stockPurchases[i];
-        }
         currentIndex = stockPurchases.length;
+        System.arraycopy(stockPurchases, 0, this.stockPurchases, 0, stockPurchases.length);
     }
-
     @Override
     public StockPurchase buyStock(String stockTicker, int quantity) {
         if(quantity <= 0){
@@ -55,13 +50,13 @@ public class Portfolio implements PortfolioAPI{
         StockPurchase purchase;
         switch (stockTicker){
             case Constants.MICROSOFT_TICKER -> {
-                purchase = new MicrosoftStockPurchase(stockTicker, quantity, LocalDateTime.now(), priceChart.getCurrentPrice(stockTicker));
+                purchase = new MicrosoftStockPurchase(quantity, LocalDateTime.now(), priceChart.getCurrentPrice(stockTicker));
             }
             case Constants.AMAZON_TICKER -> {
-                purchase = new AmazonStockPurchase(stockTicker, quantity, LocalDateTime.now(), priceChart.getCurrentPrice(stockTicker));
+                purchase = new AmazonStockPurchase(quantity, LocalDateTime.now(), priceChart.getCurrentPrice(stockTicker));
             }
             case Constants.GOOGLE_TICKER -> {
-                purchase = new GoogleStockPurchase(stockTicker, quantity, LocalDateTime.now(), priceChart.getCurrentPrice(stockTicker));
+                purchase = new GoogleStockPurchase(quantity, LocalDateTime.now(), priceChart.getCurrentPrice(stockTicker));
             }
             default -> {
                 return null;
@@ -88,7 +83,16 @@ public class Portfolio implements PortfolioAPI{
 
     @Override
     public StockPurchase[] getAllPurchases(LocalDateTime startTimestamp, LocalDateTime endTimestamp) {
-        StockPurchase[] result = new StockPurchase[currentIndex];
+        //find count
+        int countOfPurchasesInInterval = 0;
+        for (int i = 0; i < currentIndex; i++){
+            var sp = stockPurchases[i];
+            if(!sp.getPurchaseTimestamp().isBefore(startTimestamp) && !sp.getPurchaseTimestamp().isAfter(endTimestamp)){
+                countOfPurchasesInInterval++;
+            }
+        }
+
+        StockPurchase[] result = new StockPurchase[countOfPurchasesInInterval];
         int resultIndex = 0;
         for(int i = 0; i < currentIndex; i++){
             var sp = stockPurchases[i];
@@ -98,15 +102,14 @@ public class Portfolio implements PortfolioAPI{
         }
         return result;
     }
-
     @Override
     public double getNetWorth() {
         double sum = 0.0;
         for (int i = 0; i < currentIndex; i++){
             var sp = stockPurchases[i];
-            sum+=sp.getPurchasePricePerUnit() * sp.getQuantity();
+            sum+=priceChart.getCurrentPrice(sp.getStockTicker()) * sp.getQuantity();
         }
-        return (double)Math.round(sum * 100) / 100;
+        return (double)Math.round(sum * 100) / 100.0;
     }
 
     @Override

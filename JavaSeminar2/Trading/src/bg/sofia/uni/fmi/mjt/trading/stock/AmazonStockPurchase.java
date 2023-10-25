@@ -1,23 +1,14 @@
 package bg.sofia.uni.fmi.mjt.trading.stock;
-
 import bg.sofia.uni.fmi.mjt.trading.Constants;
-
 import java.time.LocalDateTime;
 
 public class AmazonStockPurchase extends BaseStockPurchase{
-
-    public AmazonStockPurchase(String ticker, int quantity, LocalDateTime purchaseTimestamp, double purchasePricePerUnit){
-        setTicker(ticker);
-        super.quantity = quantity;
-        super.purchaseTimestamp = purchaseTimestamp;
-        super.purchasePricePerUnit = purchasePricePerUnit;
+    public AmazonStockPurchase(int quantity, LocalDateTime purchaseTimestamp, double purchasePricePerUnit){
+        super(quantity, purchaseTimestamp, purchasePricePerUnit);
     }
-    private void setTicker(String ticker){
-        if(ticker.equals(Constants.AMAZON_TICKER)){
-            this.ticker = ticker;
-        }
-        else {
-            this.ticker = "";
-        }
+
+    @Override
+    public String getStockTicker() {
+        return Constants.AMAZON_TICKER;
     }
 }

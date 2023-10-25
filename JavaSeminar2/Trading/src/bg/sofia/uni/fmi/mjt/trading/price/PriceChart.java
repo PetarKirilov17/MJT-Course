@@ -14,6 +14,9 @@ public class PriceChart implements PriceChartAPI {
 
     @Override
     public double getCurrentPrice(String stockTicker) {
+        if(stockTicker == null){
+            return 0.0;
+        }
         double result = 0.0;
         switch (stockTicker){
             case Constants.MICROSOFT_TICKER -> result = microsoftStockPrice;
@@ -23,7 +26,6 @@ public class PriceChart implements PriceChartAPI {
         }
         return (double)Math.round(result * 100) / 100;
     }
-
     @Override
     public boolean changeStockPrice(String stockTicker, int percentChange) {
         if(percentChange <= 0){
@@ -34,15 +36,15 @@ public class PriceChart implements PriceChartAPI {
         }
         switch (stockTicker){
             case Constants.MICROSOFT_TICKER -> {
-                setMicrosoftStockPrice(microsoftStockPrice + (percentChange/(double)100)*microsoftStockPrice);
+                setMicrosoftStockPrice(microsoftStockPrice + ((double)percentChange/100.0) * microsoftStockPrice);
                 return true;
             }
             case Constants.AMAZON_TICKER -> {
-                setAmazonStockPrice(amazonStockPrice + (percentChange/(double)100)*amazonStockPrice);
+                setAmazonStockPrice(amazonStockPrice + ((double)percentChange/100.0) * amazonStockPrice);
                 return true;
             }
             case Constants.GOOGLE_TICKER -> {
-                setGoogleStockPrice(googleStockPrice + (percentChange/(double)100)*googleStockPrice);
+                setGoogleStockPrice(googleStockPrice + ((double)percentChange/100.0) * googleStockPrice);
                 return true;
             }
             default -> {
@@ -59,7 +61,6 @@ public class PriceChart implements PriceChartAPI {
             this.microsoftStockPrice = microsoftStockPrice;
         }
     }
-
     private void setAmazonStockPrice(double amazonStockPrice){
         if(validatePrice(amazonStockPrice)){
             this.amazonStockPrice = amazonStockPrice;
