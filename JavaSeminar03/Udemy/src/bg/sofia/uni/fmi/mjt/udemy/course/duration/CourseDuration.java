@@ -13,7 +13,12 @@ public record CourseDuration(int hours, int minutes) {
     }
 
     public static CourseDuration of(Resource[] content){
-         return null;
-        //TODO: implement logic for course duration
+        int sumMinutes = 0;
+        for (var c : content){
+            sumMinutes+=c.getDuration().minutes();
+        }
+        int hours = sumMinutes/60;
+        int mins = sumMinutes%60;
+        return new CourseDuration(hours, mins);
     }
 }

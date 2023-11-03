@@ -5,6 +5,8 @@ import bg.sofia.uni.fmi.mjt.udemy.course.duration.ResourceDuration;
 public class Resource implements Completable{
     private final String name;
     private final ResourceDuration resourceDuration;
+
+    private boolean isCompleted = false;
     public Resource(String name, ResourceDuration duration){
         this.name = name;
         this.resourceDuration = duration;
@@ -12,11 +14,14 @@ public class Resource implements Completable{
 
     @Override
     public boolean isCompleted() {
-        return false;
+        return this.isCompleted;
     }
 
     @Override
     public int getCompletionPercentage() {
+        if(this.isCompleted){
+            return 100;
+        }
         return 0;
     }
 
@@ -33,11 +38,10 @@ public class Resource implements Completable{
     public ResourceDuration getDuration() {
         return this.resourceDuration;
     }
-
     /**
      * Marks the resource as completed.
      */
     public void complete() {
-        // TODO: add implementation here
+        this.isCompleted = true;
     }
 }

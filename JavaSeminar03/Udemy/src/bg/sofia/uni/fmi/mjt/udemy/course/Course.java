@@ -6,10 +6,12 @@ import bg.sofia.uni.fmi.mjt.udemy.exception.ResourceNotFoundException;
 public class Course implements Completable, Purchasable {
     private final String name;
     private final String desciption;
-
     private Resource[] content;
     private final Category category;
     private final double price;
+    private boolean isCompleted = false;
+
+    private boolean isPurchased = false;
     public Course(String name, String description, double price, Resource[] content, Category category){
         this.name = name;
         this.desciption = description;
@@ -21,21 +23,30 @@ public class Course implements Completable, Purchasable {
 
     @Override
     public boolean isCompleted() {
-        return false;
+        return this.isCompleted;
     }
 
     @Override
     public int getCompletionPercentage() {
-        return 0;
+        int countOfCompletedRes = 0;
+        for (var c : content){
+            if(c.isCompleted()){
+                countOfCompletedRes++;
+            }
+        }
+        double attitude = countOfCompletedRes / (double)content.length;
+        attitude*=100;
+        return (int) Math.round(attitude);
     }
 
     @Override
     public void purchase() {
+       isPurchased = true;
     }
 
     @Override
     public boolean isPurchased() {
-        return false;
+        return isPurchased;
     }
 
     /**
@@ -44,7 +55,6 @@ public class Course implements Completable, Purchasable {
     public String getName() {
         return this.name;
     }
-
     /**
      * Returns the description of the course.
      */
@@ -77,7 +87,7 @@ public class Course implements Completable, Purchasable {
      * Returns the total duration of the course.
      */
     public CourseDuration getTotalTime() {
-        return null; //TODO: return totalTime
+        return CourseDuration.of(this.content);
     }
 
     /**
@@ -88,6 +98,33 @@ public class Course implements Completable, Purchasable {
      * @throws ResourceNotFoundException if the resource could not be found in the course.
      */
     public void completeResource(Resource resourceToComplete) throws ResourceNotFoundException {
-        // TODO: add implementation here
+        if(resourceToComplete == null){
+            throw new IllegalArgumentException("Resource is null!");
+        }
+        boolean foundResource = false;
+        for (var r : content){
+            if(r.getName().equals(resourceToComplete.getName())){
+                foundResource = true;
+                break;
+            }
+        }
+        if(!foundResource){
+            throw new ResourceNotFoundException("Resource was not found!");
+        }
+        resourceToComplete.complete();
+        boolean allCompleted = true;
+        for (var c : content){
+            if(!c.isCompleted()){
+                allCompleted = false;
+                break;
+            }
+        }
+        if(allCompleted){
+            setCompleted();
+        }
+    }
+
+    public void setCompleted(){
+        this.isCompleted = true;
     }
 }

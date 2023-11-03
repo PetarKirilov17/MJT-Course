@@ -11,7 +11,6 @@ import java.util.Currency;
 public class Udemy implements LearningPlatform{
     private final Account[] accounts;
     private final Course[] courses;
-
     public Udemy(Account[] accounts, Course[] courses){
         this.accounts = new Account[accounts.length];
         System.arraycopy(accounts, 0, this.accounts, 0, accounts.length);
@@ -26,7 +25,7 @@ public class Udemy implements LearningPlatform{
             throw new IllegalArgumentException("Name cannot be null or blank string!");
         }
         for(var c : courses){
-            if(c.getName().equals(name)){
+            if(c!=null && c.getName().equals(name)){
                 return c;
             }
         }
@@ -51,7 +50,7 @@ public class Udemy implements LearningPlatform{
         int counter = 0;
         boolean[] indexes = new boolean[courses.length];
         for (int i = 0; i < courses.length; i++){
-            if(courses[i].getName().contains(keyword) || courses[i].getDescription().contains(keyword)){
+            if(courses[i] != null && courses[i].getName().contains(keyword) || courses[i].getDescription().contains(keyword)){
                 counter++;
                 indexes[i] = true;
             }
@@ -67,7 +66,7 @@ public class Udemy implements LearningPlatform{
         int counter = 0;
         boolean[] indexes = new boolean[courses.length];
         for (int i = 0; i < courses.length; i++){
-            if(courses[i].getCategory().equals(category)){// TODO: check if equals or == is better
+            if(courses[i] != null && courses[i].getCategory().equals(category)){
                 counter++;
                 indexes[i] = true;
             }
@@ -81,7 +80,7 @@ public class Udemy implements LearningPlatform{
             throw new IllegalArgumentException("Name cannot be null or blank string!");
         }
         for(var a : accounts){
-            if(a.getUsername().equals(name)){
+            if(a!=null && a.getUsername().equals(name)){
                 return a;
             }
         }
@@ -96,7 +95,14 @@ public class Udemy implements LearningPlatform{
         Course longest = null;
         int maxLength = Integer.MIN_VALUE;
         for (var c: courses){
-            //TODO : implement the longest
+            if(c == null){
+                continue;
+            }
+            int currLength = c.getTotalTime().hours()*60 + c.getTotalTime().minutes();
+            if(currLength > maxLength){
+                maxLength = currLength;
+                longest = c;
+            }
         }
         return longest;
     }
@@ -109,7 +115,11 @@ public class Udemy implements LearningPlatform{
        double minPrice = Double.MAX_VALUE;
        Course result = null;
        for (var c: courses){
+           if(c == null){
+               continue;
+           }
            if(c.getCategory().equals(category) && Double.compare(c.getPrice(), minPrice) < 0){
+               minPrice = c.getPrice();
                result = c;
            }
        }
