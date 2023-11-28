@@ -29,7 +29,7 @@ public class Node implements Comparable<Node> {
 
     @Override
     public int compareTo(Node o) {
-        if(this.f.compareTo(o.f) == 0){
+        if (this.f.compareTo(o.f) == 0) {
             return this.getCity().name().compareTo(o.getCity().name());
         }
         return this.f.compareTo(o.f);

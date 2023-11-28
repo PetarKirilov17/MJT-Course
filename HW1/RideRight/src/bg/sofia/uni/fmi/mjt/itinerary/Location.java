@@ -5,10 +5,10 @@ import java.util.Objects;
 public record Location(int x, int y) {
     @Override
     public boolean equals(Object obj) {
-        if(obj == this){
+        if (obj == this) {
             return true;
         }
-        if(!(obj instanceof Location)){
+        if (!(obj instanceof Location)) {
             return false;
         }
         Location other = (Location) obj;

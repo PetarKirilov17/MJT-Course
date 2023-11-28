@@ -11,7 +11,7 @@ public record Journey(VehicleType vehicleType, City from, City to, BigDecimal pr
         if (this == obj) {
             return true;
         }
-        if (!(obj instanceof Journey)){
+        if (!(obj instanceof Journey)) {
             return false;
         }
         Journey journey = (Journey) obj;

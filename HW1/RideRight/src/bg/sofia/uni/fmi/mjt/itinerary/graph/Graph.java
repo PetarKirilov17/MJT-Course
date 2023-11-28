@@ -12,22 +12,22 @@ import java.util.Map;
 public class Graph {
     private Map<City, Node> graphNodes;
 
-    public Graph(List<Journey> schedule){
+    public Graph(List<Journey> schedule) {
         graphNodes = new HashMap<>();
         buildNodes(schedule);
     }
 
     private void buildNodes(List<Journey> schedule) {
-        for (var j : schedule){
+        for (var j : schedule) {
             var fromCity = j.from();
             var destCity = j.to();
             var type = j.vehicleType();
             var price = j.price();
-            if(!graphNodes.containsKey(fromCity)){
+            if (!graphNodes.containsKey(fromCity)) {
                 Node newNode = new Node(fromCity);
                 graphNodes.put(fromCity, newNode);
             }
-            if(!graphNodes.containsKey(destCity)){
+            if (!graphNodes.containsKey(destCity)) {
                 Node newNode = new Node(destCity);
                 graphNodes.put(destCity, newNode);
             }
@@ -37,8 +37,8 @@ public class Graph {
         }
     }
 
-    public Node getNodeByCity(City city) throws CityNotKnownException{
-        if(!graphNodes.containsKey(city)){
+    public Node getNodeByCity(City city) throws CityNotKnownException {
+        if (!graphNodes.containsKey(city)) {
             throw new CityNotKnownException("This city is not in the graph");
         }
         return graphNodes.get(city);

@@ -35,6 +35,19 @@ public class RideRight implements ItineraryPlanner {
         }
     }
 
+    private Edge isFoundWhenNotAllowedTransfer(Node startNode, Node endNode) {
+        var startNeighbours = startNode.getNeighbours();
+        Edge foundEdge = null;
+        BigDecimal foundPrice = BigDecimal.valueOf(Double.MAX_VALUE);
+        for (var n : startNeighbours) {
+            if (n.to().equals(endNode) && n.price().compareTo(foundPrice) < 0) {
+                foundEdge = n;
+                foundPrice = n.price();
+            }
+        }
+        return foundEdge;
+    }
+
     @Override
     public SequencedCollection<Journey> findCheapestPath(City start, City destination, boolean allowTransfer)
         throws CityNotKnownException, NoPathToDestinationException {
@@ -49,18 +62,8 @@ public class RideRight implements ItineraryPlanner {
         }
 
         if (!allowTransfer) {
-            var startNeighbours = startNode.getNeighbours();
-            boolean isFound = false;
-            Edge foundEdge = null;
-            BigDecimal foundPrice = BigDecimal.valueOf(Double.MAX_VALUE);
-            for (var n : startNeighbours){
-                if(n.to().equals(endNode) && n.price().compareTo(foundPrice) < 0){
-                    isFound = true;
-                    foundEdge = n;
-                    foundPrice = n.price();
-                }
-            }
-            if(!isFound){
+            var foundEdge = isFoundWhenNotAllowedTransfer(startNode, endNode);
+            if (foundEdge == null) {
                 throw new NoPathToDestinationException("There is no path between these cities!");
             }
             Journey resultJourney = new Journey(foundEdge.vehicleType(), start, destination, foundEdge.price());
@@ -73,67 +76,79 @@ public class RideRight implements ItineraryPlanner {
         if (result == null) {
             throw new NoPathToDestinationException("There is no path between these cities!");
         }
-
         return backTrackResult(result);
+    }
+
+    private void initStart(Node start, Node target) {
+        start.setG(BigDecimal.valueOf(0));
+        start.setF(start.getG()
+            .add(heuristicCalculator.calculateHeuristic(start, target).divide(METRES_TO_KM).multiply(PRICE_FOR_KM)));
+    }
+
+    private void setNeighbour(Node n, Node currNeighbour, Edge edge, BigDecimal totalWeight, Node target) {
+        currNeighbour.setParent(n);
+        currNeighbour.setParentInfo(edge.vehicleType(), edge.price());
+        currNeighbour.setG(totalWeight);
+        var distance = heuristicCalculator.calculateHeuristic(currNeighbour, target).divide(METRES_TO_KM)
+            .multiply(PRICE_FOR_KM);
+        currNeighbour.setF(currNeighbour.getG()
+            .add(distance));
+    }
+
+    private BigDecimal calcTotalWeight(Node n, Node currNeighbour, Edge edge) {
+        BigDecimal wholePrice = edge.price().add(edge.price().multiply(edge.vehicleType().getGreenTax()));
+        BigDecimal totalWeight = n.getG().add(wholePrice).add(
+            heuristicCalculator.calculateHeuristic(n, currNeighbour).divide(METRES_TO_KM)
+                .multiply(PRICE_FOR_KM));
+        return totalWeight;
+    }
+
+    private boolean checkIfCorrectionOfNeighbourIsNeeded(Node n, BigDecimal totalWeight, Node currNeighbour) {
+        return totalWeight.compareTo(currNeighbour.getG()) < 0 ||
+            (totalWeight.compareTo(currNeighbour.getG()) == 0 &&
+                currNeighbour.getParent().getCity().name().compareTo(n.getCity().name()) > 0);
+    }
+
+    private void updateLists(PriorityQueue<Node> openList, PriorityQueue<Node> closedList, Node node) {
+        openList.remove(node);
+        closedList.add(node);
     }
 
     private Node aStarAlgo(Node start, Node target) {
         PriorityQueue<Node> closedList = new PriorityQueue<>();
         PriorityQueue<Node> openList = new PriorityQueue<>();
-
-        start.setG(BigDecimal.valueOf(0));
-        start.setF(start.getG().add(heuristicCalculator.calculateHeuristic(start, target).divide(METRES_TO_KM).multiply(PRICE_FOR_KM)));
+        initStart(start, target);
         openList.add(start);
-
         while (!openList.isEmpty()) {
             Node n = openList.peek();
             if (n == target) {
                 return n;
             }
-
             for (Edge edge : n.getNeighbours()) {
                 Node currNeighbour = edge.to();
-                BigDecimal wholePrice = edge.price().add(edge.price().multiply(edge.vehicleType().getGreenTax()));
-                BigDecimal totalWeight = n.getG().add(wholePrice).add(heuristicCalculator.calculateHeuristic(n, currNeighbour).divide(METRES_TO_KM).multiply(PRICE_FOR_KM));
-
+                BigDecimal totalWeight = calcTotalWeight(n, currNeighbour, edge);
                 if (!openList.contains(currNeighbour) && !closedList.contains(currNeighbour)) {
-                    currNeighbour.setParent(n);
-                    currNeighbour.setParentInfo(edge.vehicleType(), edge.price());
-                    currNeighbour.setG(totalWeight);
-                    var distance = heuristicCalculator.calculateHeuristic(currNeighbour, target).divide(METRES_TO_KM).multiply(PRICE_FOR_KM);
-                    currNeighbour.setF(currNeighbour.getG()
-                        .add(distance));
-
+                    setNeighbour(n, currNeighbour, edge, totalWeight, target);
                     openList.add(currNeighbour);
                 } else {
-                    if (totalWeight.compareTo(currNeighbour.getG()) < 0 ||
-                        (totalWeight.compareTo(currNeighbour.getG()) == 0 && currNeighbour.getParent().getCity().name().compareTo(n.getCity().name()) > 0)) {
-                        currNeighbour.setParent(n);
-                        currNeighbour.setParentInfo(edge.vehicleType(), edge.price());
-                        currNeighbour.setG(totalWeight);
-                        var distance = heuristicCalculator.calculateHeuristic(currNeighbour, target).divide(METRES_TO_KM).multiply(PRICE_FOR_KM);
-                        currNeighbour.setF(
-                            currNeighbour.getG().add(distance));
-
+                    if (checkIfCorrectionOfNeighbourIsNeeded(n, totalWeight, currNeighbour)) {
+                        setNeighbour(n, currNeighbour, edge, totalWeight, target);
                         if (closedList.contains(currNeighbour)) {
-                            closedList.remove(currNeighbour);
-                            openList.add(currNeighbour);
+                            updateLists(openList, closedList, currNeighbour);
                         }
                     }
                 }
             }
-
-            openList.remove(n);
-            closedList.add(n);
+            updateLists(openList, closedList, n);
         }
         return null;
     }
 
-    private SequencedCollection<Journey> backTrackResult(Node target){
+    private SequencedCollection<Journey> backTrackResult(Node target) {
         SequencedCollection<Journey> result = new ArrayList<>();
         Node curr = target;
         Node parent = curr.getParent();
-        while (parent != null){
+        while (parent != null) {
             var from = parent.getCity();
             var to = curr.getCity();
             var vehicleType = curr.getParentInfo().type();
