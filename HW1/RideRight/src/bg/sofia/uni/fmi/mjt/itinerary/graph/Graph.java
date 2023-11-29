@@ -43,4 +43,11 @@ public class Graph {
         }
         return graphNodes.get(city);
     }
+
+    public void resetParents(){
+        for (var v : graphNodes.values()){
+            v.setParent(null);
+            v.setParentInfo(null, null);
+        }
+    }
 }

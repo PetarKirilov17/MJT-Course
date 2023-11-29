@@ -51,6 +51,7 @@ public class RideRight implements ItineraryPlanner {
     @Override
     public SequencedCollection<Journey> findCheapestPath(City start, City destination, boolean allowTransfer)
         throws CityNotKnownException, NoPathToDestinationException {
+        graph.resetParents();
         Node startNode;
         Node endNode;
         try {
