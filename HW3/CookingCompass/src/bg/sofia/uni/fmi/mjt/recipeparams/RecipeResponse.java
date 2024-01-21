@@ -1,4 +1,4 @@
-package recipesParams;
+package bg.sofia.uni.fmi.mjt.recipeparams;
 
 import java.util.List;
 

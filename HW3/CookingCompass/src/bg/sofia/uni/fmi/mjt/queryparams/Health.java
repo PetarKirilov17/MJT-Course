@@ -1,4 +1,4 @@
-package queryParams;
+package bg.sofia.uni.fmi.mjt.queryparams;
 
 public enum Health {
     ALCOHOL_COCKTAIL("alcohol-cocktail"),
@@ -39,9 +39,11 @@ public enum Health {
     WHEAT_FREE("wheat-free");
 
     private final String value;
+
     Health(String value) {
         this.value = value;
     }
+
     public String toString() {
         return value;
     }

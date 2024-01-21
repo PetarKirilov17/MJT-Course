@@ -1,4 +1,4 @@
-package queryParams;
+package bg.sofia.uni.fmi.mjt.queryparams;
 
 public enum MealType {
     BREAKFAST("Breakfast"),
@@ -7,9 +7,11 @@ public enum MealType {
     SNACK("Snack"),
     TEATIME("Teatime");
     private final String value;
+
     MealType(String value) {
         this.value = value;
     }
+
     public String toString() {
         return value;
     }

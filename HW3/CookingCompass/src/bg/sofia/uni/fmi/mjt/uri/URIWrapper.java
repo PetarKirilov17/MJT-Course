@@ -1,7 +1,7 @@
-package uri;
+package bg.sofia.uni.fmi.mjt.uri;
 
-import queryParams.Health;
-import queryParams.MealType;
+import bg.sofia.uni.fmi.mjt.queryparams.Health;
+import bg.sofia.uni.fmi.mjt.queryparams.MealType;
 
 import java.net.URI;
 import java.util.List;
@@ -24,7 +24,6 @@ public class URIWrapper implements URIWrapperAPI {
 
         URI result = null;
         try {
-            //TODO : change with custom exception
             result =
                 new URI(SCHEMA, HOST, PATH, TYPE + queryTextPart + APP_ID + APP_KEY + healthPart + mealTypePart, null);
         } catch (Exception e) {

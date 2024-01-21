@@ -1,4 +1,4 @@
-package uri;
+package bg.sofia.uni.fmi.mjt.uri;
 
 import java.net.URI;
 
